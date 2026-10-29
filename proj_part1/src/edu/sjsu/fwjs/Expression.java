@@ -123,8 +123,10 @@ class SeqExpr implements Expression {
         this.e2 = e2;
     }
     public Value evaluate(Environment env) {
-        // YOUR CODE HERE
-        return null;
+        // YOUR CODE HERE - evaluate the first expression, then the second, and return the value of the second expression
+        e1.evaluate(env);
+        e2.evaluate(env);
+        return e2.evaluate(env);
     }
 }
 
@@ -139,7 +141,8 @@ class VarDeclExpr implements Expression {
         this.exp = exp;
     }
     public Value evaluate(Environment env) {
-        // YOUR CODE HERE
+        // YOUR CODE HERE - create the variable in the local scope
+        env.createVar(varName, exp.evaluate(env));
         return null;
     }
 }
@@ -157,7 +160,8 @@ class AssignExpr implements Expression {
         this.e = e;
     }
     public Value evaluate(Environment env) {
-        // YOUR CODE HERE
+        // YOUR CODE HERE - update the variable in the environment, creating it in the global scope if it doesn't exist
+        env.updateVar(varName, e.evaluate(env));
         return null;
     }
 }
@@ -173,8 +177,8 @@ class FunctionDeclExpr implements Expression {
         this.body = body;
     }
     public Value evaluate(Environment env) {
-        // YOUR CODE HERE
-        return null;
+        // YOUR CODE HERE - create and return a closure value representing the function
+        return new ClosureVal(params, body, env);
     }
 }
 
@@ -190,6 +194,7 @@ class FunctionAppExpr implements Expression {
     }
     public Value evaluate(Environment env) {
         // YOUR CODE HERE
+        
         return null;
     }
 }
