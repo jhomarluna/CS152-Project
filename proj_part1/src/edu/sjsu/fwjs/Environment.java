@@ -27,7 +27,12 @@ public class Environment {
      * null is returned (similar to how JS returns undefined.
      */
     public Value resolveVar(String varName) {
-        // YOUR CODE HERE
+        // YOUR CODE HERE - check if the variable exists in the current environment, if not, check the outer environment
+        if (env.containsKey(varName)) {
+            return env.get(varName);
+        } else if (outerEnv != null) {
+            return outerEnv.resolveVar(varName);
+        } 
         return null;
     }
 
@@ -37,7 +42,15 @@ public class Environment {
      * or any of the function's outer scopes, the var is stored in the global scope.
      */
     public void updateVar(String key, Value v) {
-        // YOUR CODE HERE
+        // YOUR CODE HERE - check if the variable exists in the current environment (map), if not, check the outer environment, if not found, update in the global environment
+        if (env.containsKey(key)) {
+            env.put(key, v);
+        } else if (outerEnv != null) {
+            // Recursively update the variable in the outer environment
+            outerEnv.updateVar(key, v);
+        } else {
+            env.put(key, v);
+        }
     }
 
     /**
@@ -46,6 +59,13 @@ public class Environment {
      * a RuntimeException is thrown.
      */
     public void createVar(String key, Value v) {
-        // YOUR CODE HERE
+        // YOUR CODE HERE - check if the variable exists in the current environment, if it does, throw a RuntimeException, otherwise, create the variable in the current environment
+        if (env.containsKey(key)) {
+            // Variable already exists in the current environment
+            throw new RuntimeException("Variable " + key + " already defined in the current scope.");
+        } else {
+            // Create the variable and store its value in the current environment (it's okay if it shadows a variable in an outer scope)
+            env.put(key, v);
+        }
     }
 }
