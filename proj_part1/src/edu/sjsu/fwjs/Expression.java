@@ -108,8 +108,12 @@ class IfExpr implements Expression {
         this.els = els;
     }
     public Value evaluate(Environment env) {
-        // YOUR CODE HERE
-        return null;
+        BoolVal con = (BoolVal) cond.evaluate(env);
+
+        if (con.toBoolean()) {
+            return thn.evaluate(env);
+        }
+        return els.evaluate(env);
     }
 }
 
