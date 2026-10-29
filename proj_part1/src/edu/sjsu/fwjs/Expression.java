@@ -92,7 +92,17 @@ class IfExpr implements Expression {
     }
     public Value evaluate(Environment env) {
         // YOUR CODE HERE
-        return null;
+        Value condition = cond.evaluate(env);
+
+        if (!(condition instanceof BoolVal)) {
+            throw new RuntimeException("need to be boolean.");
+        }
+
+        if (((BoolVal) condition).toBoolean()) {
+            return thn.evaluate(env);
+        } else {
+            return els.evaluate(env);
+        }
     }
 }
 
@@ -108,7 +118,17 @@ class WhileExpr implements Expression {
     }
     public Value evaluate(Environment env) {
         // YOUR CODE HERE
-        return null;
+        while(true){
+            Value condition = cond.evaluate(env);
+            if (!(condition instanceof BoolVal)) {
+                throw new RuntimeException("need to be boolean.");
+            }
+            if (!((BoolVal) condition).toBoolean()) {
+                break;
+            }
+            body.evaluate(env);
+        }
+        return new NullVar();
     }
 }
 
@@ -194,8 +214,14 @@ class FunctionAppExpr implements Expression {
     }
     public Value evaluate(Environment env) {
         // YOUR CODE HERE
-        
-        return null;
+        ClosureVal closure = (ClosureVal) f.evaluate(env);
+        List<Value> argValues = new ArrayList<Value>();
+
+        for (int i = 0; i < args.size(); i++) {
+            Expression arg = args.get(i);
+            argValues.add(arg.evaluate(env));
+        }
+        return closure.apply(argValues);
     }
 }
 
