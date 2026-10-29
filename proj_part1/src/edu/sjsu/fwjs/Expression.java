@@ -108,9 +108,9 @@ class IfExpr implements Expression {
         this.els = els;
     }
     public Value evaluate(Environment env) {
-        BoolVal con = (BoolVal) cond.evaluate(env);
+        BoolVal c = (BoolVal) cond.evaluate(env);
 
-        if (con.toBoolean()) {
+        if (c.toBoolean()) {
             return thn.evaluate(env);
         }
         return els.evaluate(env);
@@ -128,8 +128,14 @@ class WhileExpr implements Expression {
         this.body = body;
     }
     public Value evaluate(Environment env) {
-        // YOUR CODE HERE
-        return null;
+        BoolVal c = (BoolVal) cond.evaluate(env);
+        Value result = null;
+
+        while (c.toBoolean()) {
+            result = body.evaluate(env);
+            c = (BoolVal) cond.evaluate(env);
+        }
+        return result;
     }
 }
 
