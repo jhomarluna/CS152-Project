@@ -72,7 +72,24 @@ class BinOpExpr implements Expression {
 
     @SuppressWarnings("incomplete-switch")
     public Value evaluate(Environment env) {
-        // YOUR CODE HERE
+        IntVal v1 = (IntVal) e1.evaluate(env);
+        IntVal v2 = (IntVal) e2.evaluate(env);
+
+        int left = v1.toInt();
+        int right = v2.toInt();
+
+        switch (op) {
+            case ADD: return new IntVal(left + right);
+            case SUBTRACT: return new IntVal(left - right);
+            case MULTIPLY: return new IntVal(left * right);
+            case DIVIDE: return new IntVal(left / right);
+            case MOD: return new IntVal(left % right);
+            case GT: return new BoolVal(left > right);
+            case GE: return new BoolVal(left >= right);
+            case LT: return new BoolVal(left < right);
+            case LE: return new BoolVal(left <= right);
+            case EQ: return new BoolVal(left == right);
+        }
         return null;
     }
 }
@@ -160,7 +177,6 @@ class AssignExpr implements Expression {
         this.e = e;
     }
     public Value evaluate(Environment env) {
-        // YOUR CODE HERE - update the variable in the environment, creating it in the global scope if it doesn't exist
         env.updateVar(varName, e.evaluate(env));
         return null;
     }
