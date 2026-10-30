@@ -4,6 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+IfExpr        // evaluates condition, then one branch
+WhileExpr     // repeatedly evaluates condition and body
+SeqExpr       // evaluates both once, returns second result
+VarDeclExpr   // creates local variable
+AssignExpr    // updates existing/global variable
+FunctionDecl  // creates closure
+FunctionApp   // evaluates function and arguments, calls closure
+ */
+
+
+/**
  * FWJS expressions.
  */
 public interface Expression {
@@ -72,10 +83,38 @@ class BinOpExpr implements Expression {
 
     @SuppressWarnings("incomplete-switch")
     public Value evaluate(Environment env) {
-        // YOUR CODE HERE
-        Value v1 =  e1.evaluate(env);
-        Value v2 = e2.evaluate(env);
-        return null;
+        Value left = e1.evaluate(env);
+        Value right = e2.evaluate(env);
+
+        if (!(left instanceof IntVal) || !(right instanceof IntVal)) {
+            throw new RuntimeException("Binary operands must be integers.");
+        }
+
+        // Our Code:
+        switch(op) {
+            case ADD: 
+                return new IntVal(((IntVal) left).toInt() + ((IntVal) right).toInt());
+            case SUBTRACT:
+                return new IntVal(((IntVal) left).toInt() - ((IntVal) right).toInt());
+            case MULTIPLY:
+                return new IntVal(((IntVal) left).toInt() * ((IntVal) right).toInt());
+            case DIVIDE:
+                return new IntVal(((IntVal) left).toInt() / ((IntVal) right).toInt());
+            case MOD:
+                return new IntVal(((IntVal) left).toInt() % ((IntVal) right).toInt());
+            case GT:
+                return new BoolVal(((IntVal) left).toInt() > ((IntVal) right).toInt());
+            case GE:
+                return new BoolVal(((IntVal) left).toInt() >= ((IntVal) right).toInt());
+            case LT:
+                return new BoolVal(((IntVal) left).toInt() < ((IntVal) right).toInt());
+            case LE:
+                return new BoolVal(((IntVal) left).toInt() <= ((IntVal) right).toInt());
+            case EQ:
+                return new BoolVal(((IntVal) left).toInt() == ((IntVal) right).toInt());
+            default:
+                throw new RuntimeException("Unknown binary operator.");
+        }
     }
 }
 
@@ -93,18 +132,13 @@ class IfExpr implements Expression {
         this.els = els;
     }
     public Value evaluate(Environment env) {
-        // YOUR CODE HERE
+        // Our code: first check if the cond is BoolVal
         Value condition = cond.evaluate(env);
-
         if (!(condition instanceof BoolVal)) {
-            throw new RuntimeException("need to be boolean.");
+            throw new RuntimeException("The condition is not BoolVal");
         }
-
-        if (((BoolVal) condition).toBoolean()) {
-            return thn.evaluate(env);
-        } else {
-            return els.evaluate(env);
-        }
+        // Retun a Value based on the condition.
+        return ((BoolVal) condition).toBoolean() ? thn.evaluate(env) : els.evaluate(env);
     }
 }
 
@@ -119,18 +153,25 @@ class WhileExpr implements Expression {
         this.body = body;
     }
     public Value evaluate(Environment env) {
-        // YOUR CODE HERE
-        while(true){
+        // Our code: check if cond is met, keep evaluating while it is true
+        while (true) {
+            // evaluate the condition
             Value condition = cond.evaluate(env);
+
+            // if not instanceof BoolVal throw error
             if (!(condition instanceof BoolVal)) {
-                throw new RuntimeException("need to be boolean.");
+                throw new RuntimeException("Not a Boolean"); 
             }
+
+            // if false, break from loop and stop evaluating
             if (!((BoolVal) condition).toBoolean()) {
                 break;
             }
+
+            // evaluate the body if condition is met
             body.evaluate(env);
         }
-        return new NullVar();
+        return new NullVal();
     }
 }
 
@@ -145,9 +186,8 @@ class SeqExpr implements Expression {
         this.e2 = e2;
     }
     public Value evaluate(Environment env) {
-        // YOUR CODE HERE - evaluate the first expression, then the second, and return the value of the second expression
+        // evaluate the first expression, then the second, and return the value of the second expression
         e1.evaluate(env);
-        e2.evaluate(env);
         return e2.evaluate(env);
     }
 }
@@ -163,9 +203,9 @@ class VarDeclExpr implements Expression {
         this.exp = exp;
     }
     public Value evaluate(Environment env) {
-        // YOUR CODE HERE - create the variable in the local scope
+        // Our code: create the variable in the local scope
         env.createVar(varName, exp.evaluate(env));
-        return null;
+        return new NullVal();
     }
 }
 
@@ -182,9 +222,10 @@ class AssignExpr implements Expression {
         this.e = e;
     }
     public Value evaluate(Environment env) {
-        // YOUR CODE HERE - update the variable in the environment, creating it in the global scope if it doesn't exist
-        env.updateVar(varName, e.evaluate(env));
-        return null;
+        // Our code: update the variable in the environment, creating it in the global scope if it doesn't exist
+        Value value = e.evaluate(env);
+        env.updateVar(varName, value);
+        return value;
     }
 }
 
@@ -199,7 +240,7 @@ class FunctionDeclExpr implements Expression {
         this.body = body;
     }
     public Value evaluate(Environment env) {
-        // YOUR CODE HERE - create and return a closure value representing the function
+        // Our Code: create and return a closure value representing the function
         return new ClosureVal(params, body, env);
     }
 }
@@ -215,15 +256,23 @@ class FunctionAppExpr implements Expression {
         this.args = args;
     }
     public Value evaluate(Environment env) {
-        // YOUR CODE HERE
-        ClosureVal closure = (ClosureVal) f.evaluate(env);
+        // Our Code: evaluate the function expression and its arguments, then apply the closure
+        Value function = f.evaluate(env);
+
+        if (!(function instanceof ClosureVal)) {
+            throw new RuntimeException("Can only call a function.");
+        }
+
+        ClosureVal closure = (ClosureVal) function;
+
         List<Value> argValues = new ArrayList<Value>();
 
-        for (int i = 0; i < args.size(); i++) {
-            Expression arg = args.get(i);
+        for (Expression arg : args) {
             argValues.add(arg.evaluate(env));
         }
+
         return closure.apply(argValues);
+            
     }
 }
 
