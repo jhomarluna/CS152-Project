@@ -6,22 +6,28 @@ grammar FeatherweightJavaScript;
 // Reserved words
 IF        : 'if' ;
 ELSE      : 'else' ;
-WHILE     :
-FUNCTION  :
-VAR       :
-PRINT     :
+WHILE     : 'while' ;
+FUNCTION  : 'function' ;
+VAR       : 'var' ;
+PRINT     : 'print';
 // Literals
 INT       : [1-9][0-9]* | '0' ;
-
+BOOL      :  'true' | 'false' ;
+NULL      : 'null' ;
 // Symbols
 MUL       : '*' ;
 DIV       : '/' ;
+SUB       : '-' ;
+ADD       : '+' ;
+MOD       : '%' ;
+COMPARE_OPERATERS    :  '>' | '<' | '>=' | '<=' | '==' ;
 SEPARATOR : ';' ;
 
 
 // Whitespace and comments
 NEWLINE   : '\r'? '\n' -> skip ;
 LINE_COMMENT  : '//' ~[\n\r]* -> skip ;
+BLOCK_COMMENT : 
 WS            : [ \t]+ -> skip ; // ignore whitespace
 
 
