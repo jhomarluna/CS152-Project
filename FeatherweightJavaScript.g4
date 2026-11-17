@@ -10,6 +10,7 @@ WHILE     : 'while' ;
 FUNCTION  : 'function' ;
 VAR       : 'var' ;
 PRINT     : 'print';
+ID        : [a-zA-Z_][a-zA-Z0-9_]* ;
 // Literals
 INT       : [1-9][0-9]* | '0' ;
 BOOL      :  'true' | 'false' ;
