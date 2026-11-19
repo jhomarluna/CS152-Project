@@ -10,18 +10,23 @@ WHILE     : 'while' ;
 FUNCTION  : 'function' ;
 VAR       : 'var' ;
 PRINT     : 'print';
-ID        : [a-zA-Z_][a-zA-Z0-9_]* ;
+
 // Literals
 INT       : [1-9][0-9]* | '0' ;
 BOOL      :  'true' | 'false' ;
 NULL      : 'null' ;
+
+// IDENTIFIER
+ID        : [a-zA-Z_][a-zA-Z0-9_]* ;
+
 // Symbols
 MUL       : '*' ;
 DIV       : '/' ;
 SUB       : '-' ;
 ADD       : '+' ;
 MOD       : '%' ;
-COMPARE_OPERATERS    :  '>' | '<' | '>=' | '<=' | '==' ;
+ASSIGN    : '=' ;
+COMPARE_OPERATORS    :  '>' | '<' | '>=' | '<=' | '==' ;
 SEPARATOR : ';' ;
 
 
@@ -47,14 +52,19 @@ stat: expr SEPARATOR                                    # bareExpr
 
 expr: expr op=( '*' | '/' | '%' ) expr                  # MulDivMod
     | expr op=( '+' | '-') expr                         # AddSub
-    | expr op=( '<' | '<=' | '>' | '>=' | '==') expr    # Cmp
+    | expr op=( '<' | '<=' | '>' | '>=' | '==') expr   # Cmp
+    | VAR ID ASSIGN expr                                # VarDecl
+    | ID ASSIGN expr                                    # VarAssign
     | functionDeclaration                               # FuncDecl
     | functionApplication                               # FuncApp
+    | ID                                                # varRef
     | INT                                               # int
+    | BOOL                                              # bool
+    | NULL                                              # null
     | '(' expr ')'                                      # parens
     ;
 
-functionDeclaration: FUNCTION '(' parameterList? ')' '{' expr '}' ;
+functionDeclaration: FUNCTION '(' parameterList? ')' block ;
 
 functionApplication: ID '(' argumentList? ')' ;
 
